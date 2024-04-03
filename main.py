@@ -10,7 +10,7 @@ from translate import Translator
 # Replace with your bot token
 load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-assert TOKEN is str, "A discord bot token is required"
+assert isinstance(TOKEN, str), "A discord bot token is required"
 
 # Supported languages based on gTTS
 supported_languages = lang.tts_langs()
