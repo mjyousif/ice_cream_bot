@@ -15,6 +15,7 @@ assert isinstance(TOKEN, str), "A discord bot token is required"
 
 # Supported languages based on gTTS
 supported_languages = lang.tts_langs()
+supported_languages["nan"] = ""
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -34,10 +35,14 @@ async def zao(ctx, language: str):
         await ctx.send(f"{language} is not supported")
         return
 
-    # Translate text using googletrans
-    translator = Translator(to_lang=language_code)
-    translated_text = translator.translate(text=text_to_translate)
-    await ctx.send(translated_text)
+    if language_code == "nan":
+        # Easter egg
+        await ctx.send("🇨🇳 🇨🇳  🇨🇳 🇨🇳")
+    else:
+        # Translate text using googletrans
+        translator = Translator(to_lang=language_code)
+        translated_text = translator.translate(text=text_to_translate)
+        await ctx.send(translated_text)
 
     # Generate TTS audio
     tts_audio = f"audio/tts-{language_code}.mp3"
