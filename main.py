@@ -1,11 +1,12 @@
 import asyncio
 import os
 import discord
+
 from dotenv import load_dotenv
 from discord.ext import commands
 from gtts import gTTS, lang
+from helpers import get_language_code
 from translate import Translator
-
 
 # Replace with your bot token
 load_dotenv()
@@ -14,7 +15,6 @@ assert isinstance(TOKEN, str), "A discord bot token is required"
 
 # Supported languages based on gTTS
 supported_languages = lang.tts_langs()
-print(supported_languages)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -29,19 +29,20 @@ async def zao(ctx, language: str):
         return
 
     # Validate language
-    if language not in supported_languages:
+    language_code = get_language_code(language)
+    if language_code not in supported_languages:
         await ctx.send(f"{language} is not supported")
         return
 
     # Translate text using googletrans
-    translator = Translator(to_lang=language)
+    translator = Translator(to_lang=language_code)
     translated_text = translator.translate(text=text_to_translate)
     await ctx.send(translated_text)
 
     # Generate TTS audio
-    tts_audio = f"audio/tts-{language}.mp3"
+    tts_audio = f"audio/tts-{language_code}.mp3"
     if not os.path.isfile(tts_audio):
-        tts = gTTS(text=translated_text, lang=language)
+        tts = gTTS(text=translated_text, lang=language_code)
         tts.save(tts_audio)
 
     # Join voice
