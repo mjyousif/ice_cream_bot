@@ -14,3 +14,5 @@ venv.bak/
 
 #audio
 audio/
+!audio/tts-zh.mp3
+!audio/tts-nan.mp3
