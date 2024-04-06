@@ -4,22 +4,15 @@ import discord
 
 from dotenv import load_dotenv
 from discord.ext import commands
-from gtts import gTTS, lang
-from helpers import get_language_code
-from translate import Translator
+from helpers import generate_zao_response
 
 # Replace with your bot token
 load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 assert isinstance(TOKEN, str), "A discord bot token is required"
 
-# Supported languages based on gTTS
-supported_languages = lang.tts_langs()
-supported_languages["nan"] = ""
-
 intents = discord.Intents.default()
 intents.message_content = True
-text_to_translate = "Good morning China, now I have ice cream."
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
@@ -29,26 +22,13 @@ async def zao(ctx, language: str):
     if not ctx.author.voice:
         return
 
-    # Validate language
-    language_code = get_language_code(language)
-    if language_code not in supported_languages:
-        await ctx.send(f"{language} is not supported")
+    zao_response = generate_zao_response(language)
+
+    # Send text response
+    await ctx.send(zao_response.text)
+    if zao_response.audio_path is None:
         return
-
-    if language_code == "nan":
-        # Easter egg
-        await ctx.send("🇨🇳 🇨🇳  🇨🇳 🇨🇳")
-    else:
-        # Translate text using googletrans
-        translator = Translator(to_lang=language_code)
-        translated_text = translator.translate(text=text_to_translate)
-        await ctx.send(translated_text)
-
-    # Generate TTS audio
-    tts_audio = f"audio/tts-{language_code}.mp3"
-    if not os.path.isfile(tts_audio):
-        tts = gTTS(text=translated_text, lang=language_code)
-        tts.save(tts_audio)
+    tts_audio = zao_response.audio_path
 
     # Join voice
     try:
